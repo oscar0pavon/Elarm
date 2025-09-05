@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">e</string>
+    <string name="title_activity_clien">ClienActivity</string>
+    <string name="title_activity_client_activiy">ClientActiviy</string>
+    <string name="title_activity_client">ClientActivity</string>
+    <string name="title_activity_server">ServerActivity</string>
+</resources>

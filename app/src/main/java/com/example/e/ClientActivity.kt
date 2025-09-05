@@ -1,0 +1,113 @@
+package com.example.e
+
+import android.media.MediaPlayer
+import android.os.Bundle
+import android.widget.Button
+import androidx.activity.ComponentActivity
+
+import androidx.activity.enableEdgeToEdge
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.io.PrintWriter
+import java.net.Socket
+
+
+
+class ClientActivity : ComponentActivity() {
+
+    public lateinit var mediaPlayer: MediaPlayer
+    val time = 1300L
+
+    private val scope = CoroutineScope(Dispatchers.Main) // Use Main dispatcher for UI updates
+
+    fun playCount(count: Int){
+        repeat(count){
+            mediaPlayer.start()
+            mediaPlayer.seekTo(0)
+            Thread.sleep(time)
+        }
+
+    }
+
+    fun send_command(command: String){
+        scope.launch {
+            withContext(Dispatchers.IO){
+                try{
+                    val socket = Socket("192.168.0.8",4567)
+                    val writer = PrintWriter(OutputStreamWriter(socket.outputStream), true)
+                    val reader = BufferedReader(InputStreamReader(socket.inputStream))
+
+                    writer.println(command)
+                    val response = reader.readLine()
+                    println("SERVER: $response")
+
+                    socket.close()
+
+
+                } catch (e: Exception){
+                    println("ERROR: ${e.message}")
+                }
+
+
+            }
+        }
+
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+
+        setContentView(R.layout.client_menu);
+
+        println("client")
+
+
+        val resId = R.raw.pip
+        mediaPlayer = MediaPlayer.create(this, resId)
+
+        val one = findViewById<Button?>(R.id.button)
+        val two = findViewById<Button?>(R.id.button2)
+        val three = findViewById<Button?>(R.id.button3)
+        val four = findViewById<Button?>(R.id.button4)
+        val five = findViewById<Button?>(R.id.button5)
+
+
+
+        one?.setOnClickListener {
+            //playCount(1)
+            send_command("1")
+
+        }
+
+        two?.setOnClickListener {
+            //playCount(2)
+            send_command("2")
+        }
+
+        three?.setOnClickListener {
+            //playCount(3)
+            send_command("3")
+        }
+
+        four?.setOnClickListener {
+            //playCount(4)
+            send_command("4")
+        }
+
+        five?.setOnClickListener {
+            //playCount(5)
+            send_command("5")
+        }
+
+
+    }
+}
+
