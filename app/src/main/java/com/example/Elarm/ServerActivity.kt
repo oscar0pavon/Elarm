@@ -1,5 +1,8 @@
 package com.example.Elarm
 
+
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -20,6 +23,57 @@ import java.net.Socket
 
 import android.net.wifi.WifiManager
 import android.text.format.Formatter
+
+import android.app.Service
+import android.content.Intent
+import android.os.Build
+import android.os.IBinder
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+
+class ElarmServerService : Service() {
+    private lateinit var socketServer: SocketServer
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        println("Elarm service start")
+
+        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show()
+        try{
+            val notificationId = 1
+            val notification = NotificationCompat.Builder(this, "elarm_channel_id")
+                .setContentTitle("Elarm Server service")
+                .setContentText("Elarm Server running")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .build()
+
+            startForeground(notificationId, notification)
+
+            socketServer = SocketServer(4567)
+            socketServer.startServer(this)
+
+
+        }catch (e: Exception){
+            println("ERROR ${e.message}")
+        }
+
+
+
+
+        return START_STICKY
+    }
+
+    override fun onBind(intent: Intent): IBinder? {
+        // We don't provide binding, so return null
+        return null
+    }
+
+    override fun onDestroy() {
+        Toast.makeText(this, "service done", Toast.LENGTH_SHORT).show()
+    }
+}
 
 
 class SocketServer(private val port: Int) {
@@ -132,7 +186,7 @@ class SocketServer(private val port: Int) {
 class ServerActivity : ComponentActivity() {
     public lateinit  var server_info: TextView
 
-    private lateinit var socketServer: SocketServer
+
 
     private val ioScope = CoroutineScope(Dispatchers.IO) // Create a custom scope for IO tasks
 
@@ -142,18 +196,42 @@ class ServerActivity : ComponentActivity() {
         server_info.text = text
     }
 
+    fun createNotificationChannel(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channelId = "elarm_channel_id"
+            val channelName = "Elarm Channel"
+            val channelDescription = "Elarm Server channel notification"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+
+            val channel = NotificationChannel(channelId, channelName, importance).apply {
+                description = channelDescription
+            }
+
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
     fun getLocalIpAddressAndroid(context: Context): String {
         val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         return Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.server);
 
+        createNotificationChannel(this)
+        println("created notification idf")
 
-        socketServer = SocketServer(4567)
-        socketServer.startServer(this)
+
+        val serverServiceIntend = Intent(this, ElarmServerService::class.java)
+
+        val context: Context = this
+        context.startForegroundService(serverServiceIntend)
+
+        println("started foreground service")
 
         server_info = findViewById<TextView?>(R.id.server_info_text)
 
