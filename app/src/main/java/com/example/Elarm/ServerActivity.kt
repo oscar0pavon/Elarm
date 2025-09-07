@@ -41,6 +41,7 @@ import android.widget.Button
 
 class ElarmServerService : Service() {
     private lateinit var socketServer: SocketServer
+    private val mainScope = CoroutineScope(Dispatchers.Main)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
@@ -61,11 +62,25 @@ class ElarmServerService : Service() {
             socketServer.startServer(this)
 
 
+
         }catch (e: Exception){
             println("ERROR ${e.message}")
         }
 
 
+        var mediaPlayer: MediaPlayer? = null
+        mediaPlayer = MediaPlayer.create(this,R.raw.loop_test)
+        mediaPlayer.isLooping = true
+
+        Thread {
+
+            try {
+                mediaPlayer.start()
+
+            } catch (e: Exception) {
+                println("Main Server error: ${e.message}")
+            }
+        }.start()
 
 
         return START_STICKY
@@ -87,9 +102,10 @@ class SocketServer(private val port: Int) {
     private var serverSocket: ServerSocket? = null
     private val serverScope = CoroutineScope(Dispatchers.IO)
 
+
     val time = 1300L
 
-    private lateinit var pipPlayer: PipPlayer
+   lateinit var pipPlayer: PipPlayer
 
     fun playCount(count: Int, writer: PrintWriter){
         var play_count = 0
@@ -140,7 +156,13 @@ class SocketServer(private val port: Int) {
             } finally {
                 closeServer()
             }
-        }
+
+
+
+            }
+
+
+
     }
 
     fun handleServerCommand(command: String?, writer: PrintWriter){
@@ -200,6 +222,10 @@ class SocketServer(private val port: Int) {
 class PipPlayer(private val context: Context){
     private lateinit var soundPool: SoundPool
     private var soundId1: Int = 0
+    private var loopedSoundId: Int = 1
+
+    private var loopedStreamId: Int = 2
+
 
     init{
         val audioAttributes = AudioAttributes.Builder()
@@ -212,7 +238,17 @@ class PipPlayer(private val context: Context){
             .setAudioAttributes(audioAttributes)
             .build()
 
-        soundId1 = soundPool.load(context,R.raw.pip,1)
+        soundId1 = soundPool.load(context,R.raw.pip4,1)
+
+        loopedSoundId = soundPool.load(context,R.raw.loop_test,1)
+    }
+
+    fun playLoopedSound(){
+        soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+            if (sampleId == loopedSoundId && status == 0){
+                loopedStreamId = soundPool.play(loopedSoundId,1.0f, 1.0f, 1, 0, 1.0f)
+            }
+        }
     }
 
     fun play(){
@@ -223,12 +259,6 @@ class PipPlayer(private val context: Context){
 class ServerActivity : ComponentActivity() {
     public lateinit  var server_info: TextView
 
-    private lateinit var soundPool: SoundPool
-    private var soundId1: Int = 0
-
-    private val ioScope = CoroutineScope(Dispatchers.IO) // Create a custom scope for IO tasks
-
-    private val scope = CoroutineScope(Dispatchers.Main) // Use Main dispatcher for UI updates
 
     fun print_server_info(text: String?){
         server_info.text = text
@@ -286,6 +316,10 @@ class ServerActivity : ComponentActivity() {
         one_button?.setOnClickListener {
             pipPlayer.play()
         }
+
+
+
+
 
 
     }

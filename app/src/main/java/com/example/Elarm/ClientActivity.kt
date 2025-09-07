@@ -23,19 +23,7 @@ import java.net.Socket
 
 class ClientActivity : ComponentActivity() {
 
-    public lateinit var mediaPlayer: MediaPlayer
-    val time = 1300L
-
     private val scope = CoroutineScope(Dispatchers.Main) // Use Main dispatcher for UI updates
-
-    fun playCount(count: Int){
-        repeat(count){
-            mediaPlayer.start()
-            mediaPlayer.seekTo(0)
-            Thread.sleep(time)
-        }
-
-    }
 
     fun send_command(command: String){
         scope.launch {
@@ -67,7 +55,7 @@ class ClientActivity : ComponentActivity() {
                                 val client_status = findViewById<TextView?>(R.id.client_status_text)
                                 client_status.text = "$response"
                             }
-                            Thread.sleep(time)
+                            Thread.sleep(1300L)
                         }
                         withContext(Dispatchers.Main){
                             val client_status = findViewById<TextView?>(R.id.client_status_text)
@@ -102,9 +90,6 @@ class ClientActivity : ComponentActivity() {
         println("client")
 
 
-        val resId = R.raw.pip2
-        mediaPlayer = MediaPlayer.create(this, resId)
-
         val one = findViewById<Button?>(R.id.button)
         val two = findViewById<Button?>(R.id.button2)
         val three = findViewById<Button?>(R.id.button3)
@@ -119,28 +104,27 @@ class ClientActivity : ComponentActivity() {
 
 
         one?.setOnClickListener {
-            //playCount(1)
             send_command("1")
 
         }
 
         two?.setOnClickListener {
-            //playCount(2)
+
             send_command("2")
         }
 
         three?.setOnClickListener {
-            //playCount(3)
+
             send_command("3")
         }
 
         four?.setOnClickListener {
-            //playCount(4)
+
             send_command("4")
         }
 
         five?.setOnClickListener {
-            //playCount(5)
+
             send_command("5")
         }
 
