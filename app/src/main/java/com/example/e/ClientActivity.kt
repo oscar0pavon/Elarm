@@ -3,6 +3,7 @@ package com.example.e
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 
 import androidx.activity.enableEdgeToEdge
@@ -40,7 +41,12 @@ class ClientActivity : ComponentActivity() {
         scope.launch {
             withContext(Dispatchers.IO){
                 try{
-                    val socket = Socket("192.168.0.8",4567)
+                    val server_ip_input = findViewById<TextView?>(R.id.server_ip_input)
+
+                    val server_ip: String? = server_ip_input.text.toString()
+
+                    val socket = Socket(server_ip ,4567)
+
                     val writer = PrintWriter(OutputStreamWriter(socket.outputStream), true)
                     val reader = BufferedReader(InputStreamReader(socket.inputStream))
 
@@ -48,11 +54,24 @@ class ClientActivity : ComponentActivity() {
                     val response = reader.readLine()
                     println("SERVER: $response")
 
+                    if(response == "pong"){
+                        withContext(Dispatchers.Main){
+                            val client_status = findViewById<TextView?>(R.id.client_status_text)
+                            client_status.text = "server ok"
+                        }
+                    }else{
+
+                    }
+
                     socket.close()
 
 
                 } catch (e: Exception){
                     println("ERROR: ${e.message}")
+                    withContext(Dispatchers.Main){
+                        val client_status = findViewById<TextView?>(R.id.client_status_text)
+                        client_status.text = "not send ${e.message}"
+                    }
                 }
 
 
@@ -79,6 +98,11 @@ class ClientActivity : ComponentActivity() {
         val four = findViewById<Button?>(R.id.button4)
         val five = findViewById<Button?>(R.id.button5)
 
+        val ping_button = findViewById<Button>(R.id.ping_button)
+
+        ping_button?.setOnClickListener {
+            send_command("ping")
+        }
 
 
         one?.setOnClickListener {

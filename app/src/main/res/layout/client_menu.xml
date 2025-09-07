@@ -1,14 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="196dp">
+
+    </FrameLayout>
+
+    <EditText
+        android:id="@+id/server_ip_input"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:text="192.168.0.8" />
 
     <Button
-        android:id="@+id/button6"
+        android:id="@+id/ping_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="E" />
+        android:text="ping" />
 
     <Button
         android:id="@+id/button"
@@ -40,9 +54,10 @@
         android:layout_height="wrap_content"
         android:text="5" />
 
-    <View
-        android:id="@+id/view"
+    <TextView
+        android:id="@+id/client_status_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Status" />
 
 </LinearLayout>

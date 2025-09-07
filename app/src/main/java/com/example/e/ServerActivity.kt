@@ -21,6 +21,8 @@ import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.Socket
 
+import android.net.wifi.WifiManager
+import android.text.format.Formatter
 
 
 class SocketServer(private val port: Int) {
@@ -40,6 +42,9 @@ class SocketServer(private val port: Int) {
         }
 
     }
+
+
+
     fun startServer(context: Context) {
 
 
@@ -66,7 +71,7 @@ class SocketServer(private val port: Int) {
         }
     }
 
-    fun handleServerCommand(command: String?){
+    fun handleServerCommand(command: String?, writer: PrintWriter){
         when(command){
             "1" -> {
                 Thread.sleep(100L)
@@ -80,6 +85,9 @@ class SocketServer(private val port: Int) {
             "3" -> playCount(3)
             "4" -> playCount(4)
             "5" -> playCount(5)
+            "ping" -> {
+                writer.println("pong")
+            }
         }
     }
 
@@ -92,10 +100,10 @@ class SocketServer(private val port: Int) {
 
                     var message: String?
                     while (reader.readLine().also { message = it } != null) {
-                        println("Received from client: $message")
-                        handleServerCommand(message)
+                        println("Client: $message")
+                        handleServerCommand(message, writer)
 
-                        writer.println("Server received: $message") // Echo back
+                        writer.println("Server: $message") // Echo back
                     }
                 } catch (e: Exception) {
                     println("Client handler error: ${e.message}")
@@ -131,17 +139,24 @@ class ServerActivity : ComponentActivity() {
         server_info.text = text
     }
 
+    fun getLocalIpAddressAndroid(context: Context): String {
+        val wifiManager = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        return Formatter.formatIpAddress(wifiManager.connectionInfo.ipAddress)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.server);
 
-        println("this is a test")
 
         socketServer = SocketServer(4567)
         socketServer.startServer(this)
 
         server_info = findViewById<TextView?>(R.id.server_info_text)
+
+        val server_ip: String? = getLocalIpAddressAndroid(this)
+
+        server_info.text = "Server started ${server_ip}"
 
 
 
