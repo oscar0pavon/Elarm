@@ -60,6 +60,19 @@ class ClientActivity : ComponentActivity() {
                             client_status.text = "server ok"
                         }
                     }else{
+                        var count = response.toInt()
+                        for(i in 1..<(count+1)){
+                            val response = reader.readLine()
+                            withContext(Dispatchers.Main){
+                                val client_status = findViewById<TextView?>(R.id.client_status_text)
+                                client_status.text = "$response"
+                            }
+                            Thread.sleep(time)
+                        }
+                        withContext(Dispatchers.Main){
+                            val client_status = findViewById<TextView?>(R.id.client_status_text)
+                            client_status.text = "play ended"
+                        }
 
                     }
 

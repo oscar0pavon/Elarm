@@ -85,18 +85,22 @@ class SocketServer(private val port: Int) {
     public lateinit var mediaPlayer: MediaPlayer
     val time = 1300L
 
-    fun playCount(count: Int){
+    fun playCount(count: Int, writer: PrintWriter){
         var play_count = 0
-
+        println("Playing test")
+        writer.println("$count")
         repeat(count){
             mediaPlayer.start()
-            mediaPlayer.seekTo(0)
             play_count++
+            writer.println("Playing ${play_count}")
+            println("Playing ${play_count}")
+            mediaPlayer.seekTo(0)
+
             Thread.sleep(time)
-            CoroutineScope(Dispatchers.Main).launch{
-                //findViewById<TextView?>(R.id.server_info_text)
-            }
+
         }
+
+        play_count = 0
 
     }
 
@@ -134,14 +138,16 @@ class SocketServer(private val port: Int) {
                 Thread.sleep(100L)
                 mediaPlayer.start()
                 mediaPlayer.seekTo(0)
+                writer.println("1")
                 Thread.sleep(100L)
                 mediaPlayer.start()
+                writer.println("Playing 1")
 
             }
-            "2" -> playCount(2)
-            "3" -> playCount(3)
-            "4" -> playCount(4)
-            "5" -> playCount(5)
+            "2" -> playCount(2,writer)
+            "3" -> playCount(3,writer)
+            "4" -> playCount(4,writer)
+            "5" -> playCount(5,writer)
             "ping" -> {
                 writer.println("pong")
             }
@@ -160,7 +166,7 @@ class SocketServer(private val port: Int) {
                         println("Client: $message")
                         handleServerCommand(message, writer)
 
-                        writer.println("Server: $message") // Echo back
+                        //writer.println("Server: $message") // Echo back
                     }
                 } catch (e: Exception) {
                     println("Client handler error: ${e.message}")
