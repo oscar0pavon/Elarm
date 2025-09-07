@@ -43,6 +43,8 @@ class ElarmServerService : Service() {
     private lateinit var socketServer: SocketServer
     private val mainScope = CoroutineScope(Dispatchers.Main)
 
+    private lateinit var pipPlayer: PipPlayer
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
         println("Elarm service start")
@@ -68,14 +70,12 @@ class ElarmServerService : Service() {
         }
 
 
-        var mediaPlayer: MediaPlayer? = null
-        mediaPlayer = MediaPlayer.create(this,R.raw.twenty_hz)
-        mediaPlayer.isLooping = true
+       pipPlayer = PipPlayer(this)
 
         Thread {
 
             try {
-                mediaPlayer.start()
+                pipPlayer.playLoop()
 
             } catch (e: Exception) {
                 println("Main Server error: ${e.message}")
@@ -114,7 +114,7 @@ class SocketServer(private val port: Int) {
         writer.println("$count")
         repeat(count){
 
-            pipPlayer.play()
+            pipPlayer.playPip()
             playCount++
             writer.println("Playing $playCount")
             Thread.sleep(time)
@@ -223,6 +223,10 @@ class PipPlayer(private val context: Context){
 
     private var loopedStreamId: Int = 2
 
+    var pipSound: MediaPlayer? = null
+
+    var loopSound: MediaPlayer? = null
+
 
     init{
         val audioAttributes = AudioAttributes.Builder()
@@ -238,6 +242,11 @@ class PipPlayer(private val context: Context){
         soundId1 = soundPool.load(context,R.raw.pip4,1)
 
         loopedSoundId = soundPool.load(context,R.raw.loop_test,1)
+
+        pipSound = MediaPlayer.create(context,R.raw.pip4)
+
+        loopSound = MediaPlayer.create(context,R.raw.twenty_hz)
+        loopSound?.isLooping = true
     }
 
     fun playLoopedSound(){
@@ -250,6 +259,14 @@ class PipPlayer(private val context: Context){
 
     fun play(){
         soundPool.play(soundId1, 1.0f, 1.0f, 1, 0, 1.0f)
+    }
+
+    fun playPip(){
+        pipSound?.start()
+    }
+
+    fun playLoop(){
+        loopSound?.start()
     }
 }
 
