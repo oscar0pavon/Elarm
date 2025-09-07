@@ -33,6 +33,12 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 
+import android.media.AudioAttributes
+import android.media.SoundPool
+
+import android.widget.Button
+
+
 class ElarmServerService : Service() {
     private lateinit var socketServer: SocketServer
 
@@ -81,20 +87,20 @@ class SocketServer(private val port: Int) {
     private var serverSocket: ServerSocket? = null
     private val serverScope = CoroutineScope(Dispatchers.IO)
 
-
-    public lateinit var mediaPlayer: MediaPlayer
     val time = 1300L
+
+    private lateinit var pipPlayer: PipPlayer
 
     fun playCount(count: Int, writer: PrintWriter){
         var play_count = 0
-        println("Playing test")
+
         writer.println("$count")
         repeat(count){
-            mediaPlayer.start()
+
+            pipPlayer.play()
             play_count++
             writer.println("Playing ${play_count}")
-            println("Playing ${play_count}")
-            mediaPlayer.seekTo(0)
+
 
             Thread.sleep(time)
 
@@ -109,8 +115,13 @@ class SocketServer(private val port: Int) {
     fun startServer(context: Context) {
 
 
-        val resId = R.raw.pip2
-        mediaPlayer = MediaPlayer.create(context, resId)
+        val audioAttributes = AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION) // Or CONTENT_TYPE_GAME, etc.
+            .setUsage(AudioAttributes.USAGE_MEDIA) // Or USAGE_MEDIA, etc.
+            .build()
+
+       pipPlayer = PipPlayer(context)
+
 
         serverScope.launch {
             try {
@@ -135,12 +146,9 @@ class SocketServer(private val port: Int) {
     fun handleServerCommand(command: String?, writer: PrintWriter){
         when(command){
             "1" -> {
-                Thread.sleep(100L)
-                mediaPlayer.start()
-                mediaPlayer.seekTo(0)
+                pipPlayer.play()
                 writer.println("1")
                 Thread.sleep(100L)
-                mediaPlayer.start()
                 writer.println("Playing 1")
 
             }
@@ -189,10 +197,34 @@ class SocketServer(private val port: Int) {
     }
 }
 
+class PipPlayer(private val context: Context){
+    private lateinit var soundPool: SoundPool
+    private var soundId1: Int = 0
+
+    init{
+        val audioAttributes = AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION) // Or CONTENT_TYPE_GAME, etc.
+            .setUsage(AudioAttributes.USAGE_MEDIA) // Or USAGE_MEDIA, etc.
+            .build()
+
+        soundPool = SoundPool.Builder()
+            .setMaxStreams(4) // Set the maximum number of simultaneous streams
+            .setAudioAttributes(audioAttributes)
+            .build()
+
+        soundId1 = soundPool.load(context,R.raw.pip,1)
+    }
+
+    fun play(){
+        soundPool.play(soundId1, 1.0f, 1.0f, 1, 0, 1.0f)
+    }
+}
+
 class ServerActivity : ComponentActivity() {
     public lateinit  var server_info: TextView
 
-
+    private lateinit var soundPool: SoundPool
+    private var soundId1: Int = 0
 
     private val ioScope = CoroutineScope(Dispatchers.IO) // Create a custom scope for IO tasks
 
@@ -246,6 +278,14 @@ class ServerActivity : ComponentActivity() {
         server_info.text = "Server started ${server_ip}"
 
 
+        val pipPlayer = PipPlayer(this)
+
+
+        val one_button = findViewById<Button>(R.id.one_button)
+
+        one_button?.setOnClickListener {
+            pipPlayer.play()
+        }
 
 
     }
