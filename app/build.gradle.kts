@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.e"
+    namespace = "com.example.Elarm"
     compileSdk = 36
 
     defaultConfig {

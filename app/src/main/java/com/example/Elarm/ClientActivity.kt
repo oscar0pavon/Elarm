@@ -1,4 +1,4 @@
-package com.example.e
+package com.example.Elarm
 
 import android.media.MediaPlayer
 import android.os.Bundle

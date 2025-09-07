@@ -1,11 +1,9 @@
-package com.example.e
+package com.example.Elarm
 
 
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.ComponentActivity
-import androidx.activity.enableEdgeToEdge
-import android.media.MediaPlayer
 import kotlinx.coroutines.*
 import android.content.Intent
 

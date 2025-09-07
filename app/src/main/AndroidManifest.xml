@@ -26,16 +26,6 @@
             android:label="@string/title_activity_client"
             android:theme="@style/Theme.E" />
         <activity
-            android:name=".ClientActiviy"
-            android:exported="false"
-            android:label="@string/title_activity_client_activiy"
-            android:theme="@style/Theme.E" />
-        <activity
-            android:name=".ClienActivity"
-            android:exported="false"
-            android:label="@string/title_activity_clien"
-            android:theme="@style/Theme.E" />
-        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
