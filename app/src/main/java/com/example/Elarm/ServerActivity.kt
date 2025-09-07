@@ -69,7 +69,7 @@ class ElarmServerService : Service() {
 
 
         var mediaPlayer: MediaPlayer? = null
-        mediaPlayer = MediaPlayer.create(this,R.raw.loop_test)
+        mediaPlayer = MediaPlayer.create(this,R.raw.twenty_hz)
         mediaPlayer.isLooping = true
 
         Thread {
@@ -80,6 +80,7 @@ class ElarmServerService : Service() {
             } catch (e: Exception) {
                 println("Main Server error: ${e.message}")
             }
+
         }.start()
 
 
@@ -108,21 +109,17 @@ class SocketServer(private val port: Int) {
    lateinit var pipPlayer: PipPlayer
 
     fun playCount(count: Int, writer: PrintWriter){
-        var play_count = 0
+        var playCount = 0
 
         writer.println("$count")
         repeat(count){
 
             pipPlayer.play()
-            play_count++
-            writer.println("Playing ${play_count}")
-
-
+            playCount++
+            writer.println("Playing $playCount")
             Thread.sleep(time)
 
         }
-
-        play_count = 0
 
     }
 
@@ -220,7 +217,7 @@ class SocketServer(private val port: Int) {
 }
 
 class PipPlayer(private val context: Context){
-    private lateinit var soundPool: SoundPool
+    private var soundPool: SoundPool
     private var soundId1: Int = 0
     private var loopedSoundId: Int = 1
 
@@ -291,35 +288,28 @@ class ServerActivity : ComponentActivity() {
         setContentView(R.layout.server);
 
         createNotificationChannel(this)
-        println("created notification idf")
-
 
         val serverServiceIntend = Intent(this, ElarmServerService::class.java)
 
         val context: Context = this
         context.startForegroundService(serverServiceIntend)
 
-        println("started foreground service")
 
-        server_info = findViewById<TextView?>(R.id.server_info_text)
+        server_info = findViewById<TextView>(R.id.server_info_text)
 
-        val server_ip: String? = getLocalIpAddressAndroid(this)
+        val serverIp: String? = getLocalIpAddressAndroid(this)
 
-        server_info.text = "Server started ${server_ip}"
+        server_info.text = "Server started ${serverIp}"
 
 
         val pipPlayer = PipPlayer(this)
 
 
-        val one_button = findViewById<Button>(R.id.one_button)
+        val oneButton = findViewById<Button>(R.id.one_button)
 
-        one_button?.setOnClickListener {
+        oneButton?.setOnClickListener {
             pipPlayer.play()
         }
-
-
-
-
 
 
     }

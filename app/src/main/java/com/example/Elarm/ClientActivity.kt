@@ -25,15 +25,15 @@ class ClientActivity : ComponentActivity() {
 
     private val scope = CoroutineScope(Dispatchers.Main) // Use Main dispatcher for UI updates
 
-    fun send_command(command: String){
+    fun sendCommand(command: String){
         scope.launch {
             withContext(Dispatchers.IO){
                 try{
-                    val server_ip_input = findViewById<TextView?>(R.id.server_ip_input)
+                    val serverIpInput = findViewById<TextView>(R.id.server_ip_input)
 
-                    val server_ip: String? = server_ip_input.text.toString()
+                    val serverIp: String? = serverIpInput.text.toString()
 
-                    val socket = Socket(server_ip ,4567)
+                    val socket = Socket(serverIp ,4567)
 
                     val writer = PrintWriter(OutputStreamWriter(socket.outputStream), true)
                     val reader = BufferedReader(InputStreamReader(socket.inputStream))
@@ -42,24 +42,26 @@ class ClientActivity : ComponentActivity() {
                     val response = reader.readLine()
                     println("SERVER: $response")
 
+                    var clientStatus: TextView
+
                     if(response == "pong"){
                         withContext(Dispatchers.Main){
-                            val client_status = findViewById<TextView?>(R.id.client_status_text)
-                            client_status.text = "server ok"
+                            clientStatus = findViewById<TextView>(R.id.client_status_text)
+                            clientStatus.text = "server ok"
                         }
                     }else{
                         var count = response.toInt()
                         for(i in 1..<(count+1)){
                             val response = reader.readLine()
                             withContext(Dispatchers.Main){
-                                val client_status = findViewById<TextView?>(R.id.client_status_text)
-                                client_status.text = "$response"
+                                clientStatus = findViewById<TextView>(R.id.client_status_text)
+                                clientStatus.text = "$response"
                             }
                             Thread.sleep(1300L)
                         }
                         withContext(Dispatchers.Main){
-                            val client_status = findViewById<TextView?>(R.id.client_status_text)
-                            client_status.text = "play ended"
+                            clientStatus = findViewById<TextView>(R.id.client_status_text)
+                            clientStatus.text = "play ended"
                         }
 
                     }
@@ -70,8 +72,8 @@ class ClientActivity : ComponentActivity() {
                 } catch (e: Exception){
                     println("ERROR: ${e.message}")
                     withContext(Dispatchers.Main){
-                        val client_status = findViewById<TextView?>(R.id.client_status_text)
-                        client_status.text = "not send ${e.message}"
+                        val clientStatus = findViewById<TextView>(R.id.client_status_text)
+                        clientStatus.text = "not send ${e.message}"
                     }
                 }
 
@@ -96,36 +98,36 @@ class ClientActivity : ComponentActivity() {
         val four = findViewById<Button?>(R.id.button4)
         val five = findViewById<Button?>(R.id.button5)
 
-        val ping_button = findViewById<Button>(R.id.ping_button)
+        val pingButton = findViewById<Button>(R.id.ping_button)
 
-        ping_button?.setOnClickListener {
-            send_command("ping")
+        pingButton?.setOnClickListener {
+            sendCommand("ping")
         }
 
 
         one?.setOnClickListener {
-            send_command("1")
+            sendCommand("1")
 
         }
 
         two?.setOnClickListener {
 
-            send_command("2")
+            sendCommand("2")
         }
 
         three?.setOnClickListener {
 
-            send_command("3")
+            sendCommand("3")
         }
 
         four?.setOnClickListener {
 
-            send_command("4")
+            sendCommand("4")
         }
 
         five?.setOnClickListener {
 
-            send_command("5")
+            sendCommand("5")
         }
 
 
