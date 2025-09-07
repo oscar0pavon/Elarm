@@ -89,7 +89,7 @@ class ClientActivity : ComponentActivity() {
         println("client")
 
 
-        val resId = R.raw.pip
+        val resId = R.raw.pip2
         mediaPlayer = MediaPlayer.create(this, resId)
 
         val one = findViewById<Button?>(R.id.button)

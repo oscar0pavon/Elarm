@@ -11,9 +11,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-import java.io.*
-
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.withContext
 
 import java.io.BufferedReader
@@ -35,10 +32,16 @@ class SocketServer(private val port: Int) {
     val time = 1300L
 
     fun playCount(count: Int){
+        var play_count = 0
+
         repeat(count){
             mediaPlayer.start()
             mediaPlayer.seekTo(0)
+            play_count++
             Thread.sleep(time)
+            CoroutineScope(Dispatchers.Main).launch{
+                //findViewById<TextView?>(R.id.server_info_text)
+            }
         }
 
     }
@@ -48,7 +51,7 @@ class SocketServer(private val port: Int) {
     fun startServer(context: Context) {
 
 
-        val resId = R.raw.pip
+        val resId = R.raw.pip2
         mediaPlayer = MediaPlayer.create(context, resId)
 
         serverScope.launch {
